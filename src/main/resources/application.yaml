@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: spring-ai-demo
+  ai:
+    # openai:
+    #   api-key: your openai-api-key
+    #   base-url: https://api.openai.com
+    google:
+      genai:
+        api-key: ${GOOGLE_GENAI_API_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
