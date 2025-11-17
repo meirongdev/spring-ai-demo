@@ -24,7 +24,8 @@ extra["springAiVersion"] = "1.1.0"
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
   // implementation("org.springframework.ai:spring-ai-starter-model-openai")
-  implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+  // implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+  implementation("org.springframework.ai:spring-ai-starter-model-ollama")
   implementation("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
