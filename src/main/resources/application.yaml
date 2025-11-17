@@ -5,9 +5,13 @@ spring:
     # openai:
     #   api-key: your openai-api-key
     #   base-url: https://api.openai.com
-    google:
-      genai:
-        api-key: ${GOOGLE_GENAI_API_KEY}
+    # google:
+    #   genai:
+    #     api-key: ${GOOGLE_GENAI_API_KEY}
+    ollama:
+      chat:
+        # http http://localhost:11434/api/tags -b to see available models
+        model: mistral:7b
 
 management:
   endpoints:
