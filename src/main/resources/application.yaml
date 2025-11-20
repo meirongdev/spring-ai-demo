@@ -12,6 +12,8 @@ spring:
       chat:
         # http http://localhost:11434/api/tags -b to see available models
         model: mistral:7b
+      init:
+        pull-model-strategy: when-missing
 
 management:
   endpoints:
