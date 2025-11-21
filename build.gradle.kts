@@ -28,6 +28,7 @@ dependencies {
   implementation("org.springframework.ai:spring-ai-starter-model-ollama")
   implementation("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+  implementation("org.springframework.boot:spring-boot-starter-validation")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.wiremock.integrations:wiremock-spring-boot:3.10.6")

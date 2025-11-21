@@ -1,0 +1,63 @@
+package dev.meirong.showcase.spring_ai_demo.fortunetoday;
+
+import java.time.LocalDate;
+import java.util.Objects;
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SpringAiFortuneTodayService implements FortuneTodayService {
+
+  private final ChatClient chatClient;
+
+  private static final String TEMPLATE = """
+      你是一位专业的星座和生肖运势分析师。请根据以下信息生成今日运势：
+
+      用户姓名：{name}
+      出生日期：{birthday}
+
+      请按以下格式输出：
+
+      1. **基本信息**
+        - 姓名：{name}
+        - 星座：[根据出生日期计算]
+        - 生肖：[根据出生年份计算]
+
+      2. **今日综合运势** （ 今天是{today_date} ）
+        - 整体运势：[1-5颗星，用⭐表示]
+        - 运势简评：[一句话概括今日运势]
+
+      3. **详细运势分析**
+        - 爱情运势：[50-80字的详细分析]
+        - 事业运势：[50-80字的详细分析]
+        - 财运：[50-80字的详细分析]
+        - 健康运势：[50-80字的详细分析]
+
+      4. **幸运元素**
+        - 幸运颜色：
+        - 幸运数字：
+        - 幸运方位：
+
+      5. **今日建议**
+        [给出2-3条针对性的建议]
+
+      请用温暖、积极的语气，让运势分析既专业又富有启发性。
+      """;
+
+  public SpringAiFortuneTodayService(ChatClient.Builder chatClientBuilder) {
+    this.chatClient = chatClientBuilder.build();
+  }
+
+  @Override
+  public FortuneTodayResponse getFortuneToday(UserInfo userInfo) {
+
+    var fortuneText = chatClient.prompt()
+        .user(userSpec -> userSpec.text(TEMPLATE).param("name", userInfo.fullName())
+        .param("birthday", userInfo.birthDate()).param("today_date", Objects.requireNonNull(String.valueOf(LocalDate.now()))))
+        .call()
+        .content();
+
+    return new FortuneTodayResponse(fortuneText);
+  }
+}
