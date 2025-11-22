@@ -12,6 +12,12 @@ spring:
       chat:
         # http http://localhost:11434/api/tags -b to see available models
         model: mistral:7b
+        # model: deepseek-r1:1.5b
+        options:
+          temperature: 0.8
+          # maxTokens: 1024
+          # top-k: 5
+          # top-p: 0.9
       init:
         pull-model-strategy: when-missing
 

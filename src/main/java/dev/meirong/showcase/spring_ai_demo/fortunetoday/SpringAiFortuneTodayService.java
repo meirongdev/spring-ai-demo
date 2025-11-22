@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SpringAiFortuneTodayService implements FortuneTodayService {
-
   private final ChatClient chatClient;
 
   private final @NonNull Resource templateResource;
 
   public SpringAiFortuneTodayService(ChatClient.Builder chatClientBuilder,
       @Value("classpath:/promptTemplates/fortune_today.st") Resource templateResource) {
-    this.chatClient = chatClientBuilder.build();
+    this.chatClient = chatClientBuilder
+        .build();
     this.templateResource = Objects.requireNonNull(templateResource, "templateResource must not be null");
   }
 
@@ -29,15 +29,15 @@ public class SpringAiFortuneTodayService implements FortuneTodayService {
     // 计算星座
     String zodiacSign = Objects.requireNonNull(ZodiacUtils.getZodiacSign(birthDate), "zodiacSign must not be null");
 
-    var fortuneText = chatClient.prompt()
+    var responseSpec = chatClient.prompt()
         .user(userSpec -> userSpec.text(templateResource)
         .param("name", userInfo.fullName())
         .param("birthday", userInfo.birthDate())
         .param("zodiac", zodiacSign)// 传入计算好的星座
         .param("today_date", Objects.requireNonNull(String.valueOf(LocalDate.now()))))
-        .call()
-        .content();
+        .call();
 
+    var fortuneText = responseSpec.content();
     return new FortuneTodayResponse(fortuneText);
   }
 }
