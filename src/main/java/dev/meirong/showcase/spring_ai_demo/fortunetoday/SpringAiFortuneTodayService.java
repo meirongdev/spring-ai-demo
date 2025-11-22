@@ -30,7 +30,11 @@ public class SpringAiFortuneTodayService implements FortuneTodayService {
   @Override
   public Flux<String> getFortuneToday(UserInfo userInfo) {
     LocalDate birthDate = LocalDate.parse(userInfo.birthDate());
+    // 1. 计算星座 (西方)
     String zodiacSign = Objects.requireNonNull(ZodiacUtils.getZodiacSign(birthDate), "zodiacSign must not be null");
+    // 2. 计算生肖 (农历精准版)
+    String chineseZodiac = Objects.requireNonNull(ZodiacUtils.getChineseZodiac(birthDate),
+        "chineseZodiac must not be null");
 
     var outputConverter = new BeanOutputConverter<>(FortuneTodayResponse.class);
 
@@ -39,25 +43,26 @@ public class SpringAiFortuneTodayService implements FortuneTodayService {
             .param("name", userInfo.fullName())
             .param("birthday", userInfo.birthDate())
             .param("zodiac", zodiacSign)
+            .param("chinese_zodiac", chineseZodiac)
             .param("today_date", Objects.requireNonNull(String.valueOf(LocalDate.now())))
             .param("format", outputConverter.getFormat()))
         .stream()
         .chatResponse() // 1. 改用 chatResponse() 获取完整对象流
         .doOnNext(response -> { // 2. 使用 doOnNext 偷看元数据 (副作用)
-            if (response.getMetadata() != null && response.getMetadata().getUsage() != null) {
-                var usage = response.getMetadata().getUsage();
-                // 注意：在流式传输中，Usage 信息通常只在最后一个或最后几个 chunk 中出现
-                // 或者是累积的，具体取决于模型提供商
-                if (usage.getTotalTokens() > 0) {
-                    logger.info("Token Usage -> Prompt: {}, Generation: {}, Total: {}",
-                        usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
-                }
+          if (response.getMetadata() != null && response.getMetadata().getUsage() != null) {
+            var usage = response.getMetadata().getUsage();
+            // 注意：在流式传输中，Usage 信息通常只在最后一个或最后几个 chunk 中出现
+            // 或者是累积的，具体取决于模型提供商
+            if (usage.getTotalTokens() > 0) {
+              logger.info("Token Usage -> Prompt: {}, Generation: {}, Total: {}",
+                  usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
             }
+          }
         })
         .map(response -> { // 3. 将 ChatResponse 映射回 String 内容
-            String content = response.getResult().getOutput().getText();
-            // 某些 chunk (如最后一个包含 usage 的 chunk) content 可能为 null
-            return content != null ? content : "";
+          String content = response.getResult().getOutput().getText();
+          // 某些 chunk (如最后一个包含 usage 的 chunk) content 可能为 null
+          return content != null ? content : "";
         });
   }
 }

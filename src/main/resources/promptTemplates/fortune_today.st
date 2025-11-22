@@ -3,6 +3,7 @@
 用户姓名：{name}
 出生日期：{birthday}
 星座：{zodiac}
+生肖：{chinese_zodiac}
 今天是：{today_date}
 
 {format}
