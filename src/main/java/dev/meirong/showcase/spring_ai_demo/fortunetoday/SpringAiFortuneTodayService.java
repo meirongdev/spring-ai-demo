@@ -11,11 +11,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import reactor.core.publisher.Flux;
+
 @Service
 public class SpringAiFortuneTodayService implements FortuneTodayService {
-  private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringAiFortuneTodayService.class);
   private final ChatClient chatClient;
-
   private final @NonNull Resource templateResource;
 
   public SpringAiFortuneTodayService(ChatClient.Builder chatClientBuilder,
@@ -25,7 +25,7 @@ public class SpringAiFortuneTodayService implements FortuneTodayService {
   }
 
   @Override
-  public FortuneTodayResponse getFortuneToday(UserInfo userInfo) {
+  public Flux<String> getFortuneToday(UserInfo userInfo) {
     // 解析日期
     LocalDate birthDate = LocalDate.parse(userInfo.birthDate());
     // 计算星座
@@ -34,30 +34,14 @@ public class SpringAiFortuneTodayService implements FortuneTodayService {
     // 定义结构化输出转换器
     var outputConverter = new BeanOutputConverter<>(FortuneTodayResponse.class);
 
-    var responseSpec = chatClient.prompt()
+        return chatClient.prompt()
         .user(userSpec -> userSpec.text(templateResource)
             .param("name", userInfo.fullName())
             .param("birthday", userInfo.birthDate())
             .param("zodiac", zodiacSign)
             .param("today_date", Objects.requireNonNull(String.valueOf(LocalDate.now())))
-            .param("format", outputConverter.getFormat())) // 注入格式指令
-        .call();
-
-    var chatResponse = responseSpec.chatResponse();
-    if (chatResponse == null) {
-        throw new RuntimeException("AI response is null");
-    }
-    if (chatResponse.getMetadata() != null) {
-        String model = chatResponse.getMetadata().getModel();
-        logger.info("Model used for generating fortune today: {}", model);
-    }
-
-    var content = chatResponse.getResult().getOutput().getText();
-
-    if (content == null) {
-        throw new RuntimeException("AI response content is null");
-    }
-    // 将文本响应转换为对象
-    return outputConverter.convert(content);
+            .param("format", outputConverter.getFormat()))
+        .stream() // 关键：使用 stream()
+        .content(); // 返回 Flux<String>
   }
 }

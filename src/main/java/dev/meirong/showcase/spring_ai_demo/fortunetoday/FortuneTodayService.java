@@ -1,5 +1,7 @@
 package dev.meirong.showcase.spring_ai_demo.fortunetoday;
 
+import reactor.core.publisher.Flux;
+
 public interface FortuneTodayService {
-  FortuneTodayResponse getFortuneToday(UserInfo userInfo);
+  Flux<String> getFortuneToday(UserInfo userInfo);
 }
